@@ -1,0 +1,63 @@
+# IQFeed continuous futures downloader.
+# Symbols are explicit on purpose: verify each one with
+#   iqfeed-dl probe <symbol> --timeframe 1d
+# "#C" = back-adjusted continuous, "#" = unadjusted front month.
+# CME/CBOT products use an "@" prefix (@ES#C); NYMEX/COMEX use "Q" (QCL#C, QGC#C).
+# CBOT rates use IQFeed's legacy roots (@TY = 10y note, @US = 30y bond).
+
+[iqfeed]
+host = "127.0.0.1"
+lookup_port = 9100
+timeout_seconds = 60
+
+[output]
+directory = "./data/continuous"
+reports_dir = "./reports"
+logs_dir = "./logs"
+
+[history]
+start_date = "2010-01-01"
+end_date = "today"
+timeframes = ["1d", "1h"]   # any subset
+# IQFeed's native daily history (HDX/HDT) currently fails on this account, so daily bars are
+# built from hourly bars. Use "iqfeed" to switch back once native daily works.
+daily_source = "hourly"
+# Eastern time the trade day starts: CME Globex 18:00 (= 17:00 CT). The bar is dated by the
+# day it ends on. Set to match your MultiCharts session template.
+session_start = "18:00"
+
+[[symbols]]
+name = "ES"
+iqfeed_symbol = "@ES#C"
+
+[[symbols]]
+name = "MES"
+iqfeed_symbol = "@MES#C"
+
+[[symbols]]
+name = "NQ"
+iqfeed_symbol = "@NQ#C"
+
+[[symbols]]
+name = "YM"
+iqfeed_symbol = "@YM#C"
+
+[[symbols]]
+name = "RTY"
+iqfeed_symbol = "@RTY#C"
+
+[[symbols]]
+name = "CL"
+iqfeed_symbol = "QCL#C"
+
+[[symbols]]
+name = "GC"
+iqfeed_symbol = "QGC#C"
+
+[[symbols]]
+name = "ZN"
+iqfeed_symbol = "@TY#C"
+
+[[symbols]]
+name = "ZB"
+iqfeed_symbol = "@US#C"
