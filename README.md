@@ -1,6 +1,6 @@
 # iqfeed-dl
 
-Downloads IQFeed's continuous back-adjusted futures (`@ES#C` style symbols) and saves one CSV
+Downloads IQFeed's continuous back-adjusted futures (`@MES#C` style symbols) and saves one CSV
 per market per timeframe: **hourly** bars straight from IQFeed and **daily** bars built from
 those hourly bars. Written in Rust, single binary, no rollover or back-adjustment logic of its
 own; IQFeed's adjusted series is used as is.
@@ -36,11 +36,11 @@ iqfeed-dl check-connection                     # is IQFeed reachable and answeri
 iqfeed-dl list-symbols                         # what config.toml will download
 iqfeed-dl probe '@MES#C' --timeframe 1h        # look at a symbol before adding it
 iqfeed-dl download                             # everything in config.toml
-iqfeed-dl download --symbol ES --symbol NQ     # only some markets
+iqfeed-dl download --symbol MES --symbol MNQ   # only some markets
 iqfeed-dl download --timeframe 1h              # only one timeframe
 ```
 
-Quote symbols containing `#` in PowerShell (`'@ES#C'`), or the rest of the line is treated as
+Quote symbols containing `#` in PowerShell (`'@MES#C'`), or the rest of the line is treated as
 a comment.
 
 ## Commands
@@ -82,25 +82,27 @@ daily_source = "hourly"     # "hourly" (build from hourly) or "iqfeed" (native H
 session_start = "18:00"     # Eastern; trade-day start used when daily_source = "hourly"
 
 [[symbols]]
-name = "ES"
-iqfeed_symbol = "@ES#C"
-# file_prefix = "ES_custom"   # optional override
+name = "MES"
+iqfeed_symbol = "@MES#C"
+# file_prefix = "MES_custom"   # optional override
 ```
 
-Included markets (all probed against a live IQFeed session):
+Included markets — micro futures only (all probed against a live IQFeed session):
 
-| name | IQFeed symbol | | name | IQFeed symbol |
-|---|---|---|---|---|
-| ES | `@ES#C` | | CL | `QCL#C` |
-| MES | `@MES#C` | | GC | `QGC#C` |
-| NQ | `@NQ#C` | | ZN | `@TY#C` |
-| YM | `@YM#C` | | ZB | `@US#C` |
-| RTY | `@RTY#C` | | | |
+| name | IQFeed symbol | full-size equivalent |
+|---|---|---|
+| MES | `@MES#C` | ES (Micro E-mini S&P 500) |
+| MNQ | `@MNQ#C` | NQ (Micro E-mini Nasdaq-100) |
+| MYM | `@MYM#C` | YM (Micro E-mini Dow) |
+| M2K | `@M2K#C` | RTY (Micro E-mini Russell 2000) |
+| MCL | `QMCL#C` | CL (Micro WTI Crude Oil) |
+| MGC | `QMGC#C` | GC (Micro Gold) |
 
-Symbol notes: `#C` is back-adjusted continuous, `#` is the unadjusted front month. CME/CBOT
-equity index products use an `@` prefix, NYMEX/COMEX use `Q`, and CBOT rates use IQFeed's
-legacy roots (`@TY` = 10-year note, `@US` = 30-year bond). Symbols are explicit on purpose;
-check new ones with `probe` before adding them.
+Symbol notes: `#C` is back-adjusted continuous, `#` is the unadjusted front month. CME equity
+index micros use an `@` prefix like their full-size counterparts; NYMEX/COMEX micros use `Q`
+(same prefix as the full-size contracts, e.g. `QCL#C` -> `QMCL#C`). Symbols are explicit on
+purpose; check new ones with `probe` before adding them. To add a full-size or other market
+back, follow the same `@`/`Q` pattern and verify with `probe` first.
 
 Validation rejects: no symbols, no timeframes, bad dates, start after end, bad
 `session_start`, duplicate names, two symbols writing the same files, and file prefixes with
@@ -110,7 +112,7 @@ characters other than letters, digits, `_`, `-`.
 
 Files: `<prefix>_<1d|1h>.csv`, where the prefix is `<name>_back_adjusted` for `#C` symbols,
 `<name>_unadjusted` for `#` symbols, otherwise `<name>` (or `file_prefix` if set). Example:
-`data/continuous/ES_back_adjusted_1h.csv`.
+`data/continuous/MES_back_adjusted_1h.csv`.
 
 Hourly, `YYYY-MM-DD HH:MM:SS`:
 
@@ -267,8 +269,8 @@ Verified against a live IQFeed 6.2 session:
 - **Do not send `HMX`** (monthly bars): it made IQConnect drop the connection and exit.
 - IQConnect exits or refuses connections until it is logged in. The admin port (9300) reports
   `Connected` / `Not Connected` in its `S,STATS` line.
-- Historical depth depends on the subscription. The 2010-01-01 start returned data for all
-  markets except MES, which launched in May 2019.
+- Historical depth depends on the subscription and when each contract launched: MGC goes back
+  to 2010, MES/MNQ/MYM/M2K to May 2019, and MCL has the shortest history of the six.
 
 ## Older plan
 
