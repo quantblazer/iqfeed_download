@@ -2,8 +2,8 @@
 # Symbols are explicit on purpose: verify each one with
 #   iqfeed-dl probe <symbol> --timeframe 1d
 # "#C" = back-adjusted continuous, "#" = unadjusted front month.
-# CME/CBOT products use an "@" prefix (@ES#C); NYMEX/COMEX use "Q" (QCL#C, QGC#C).
-# CBOT rates use IQFeed's legacy roots (@TY = 10y note, @US = 30y bond).
+# CME/CBOT products use an "@" prefix (@MES#C); NYMEX/COMEX use "Q" (QMCL#C, QMGC#C).
+# Micro futures only (full-size ES/NQ/YM/RTY/CL/GC and the bond futures ZN/ZB were removed).
 
 [iqfeed]
 host = "127.0.0.1"
@@ -27,37 +27,25 @@ daily_source = "hourly"
 session_start = "18:00"
 
 [[symbols]]
-name = "ES"
-iqfeed_symbol = "@ES#C"
-
-[[symbols]]
 name = "MES"
 iqfeed_symbol = "@MES#C"
 
 [[symbols]]
-name = "NQ"
-iqfeed_symbol = "@NQ#C"
+name = "MNQ"
+iqfeed_symbol = "@MNQ#C"
 
 [[symbols]]
-name = "YM"
-iqfeed_symbol = "@YM#C"
+name = "MYM"
+iqfeed_symbol = "@MYM#C"
 
 [[symbols]]
-name = "RTY"
-iqfeed_symbol = "@RTY#C"
+name = "M2K"
+iqfeed_symbol = "@M2K#C"
 
 [[symbols]]
-name = "CL"
-iqfeed_symbol = "QCL#C"
+name = "MCL"
+iqfeed_symbol = "QMCL#C"
 
 [[symbols]]
-name = "GC"
-iqfeed_symbol = "QGC#C"
-
-[[symbols]]
-name = "ZN"
-iqfeed_symbol = "@TY#C"
-
-[[symbols]]
-name = "ZB"
-iqfeed_symbol = "@US#C"
+name = "MGC"
+iqfeed_symbol = "QMGC#C"
